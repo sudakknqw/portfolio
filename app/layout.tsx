@@ -25,9 +25,26 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+// One source for the tab title and every link preview (Telegram, iMessage, Slack, X…)
+const title = "sudakknqw — Software developer";
+const description =
+  "Good software starts below the surface: data model, access rules and security are settled before the first screen. Currently working on web products and automation.";
+
 export const metadata: Metadata = {
-  title: "sudakknqw · Landing pages, web apps & automation",
-  description: "Freelance developer building landing pages, booking systems and workflow automations on a secure, well-structured codebase.",
+  title,
+  description,
+  openGraph: {
+    type: "website",
+    siteName: "sudakknqw",
+    locale: "en_US",
+    title,
+    description,
+  },
+  twitter: {
+    card: "summary",
+    title,
+    description,
+  },
 };
 
 export const viewport: Viewport = {
