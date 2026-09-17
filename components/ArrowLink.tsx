@@ -1,11 +1,18 @@
-type Props = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
-  href: string;
+type Common = {
   children: React.ReactNode;
-  /** "md" — project cards; "lg" — display-sized links in the contact block */
-  size?: "md" | "lg";
+  /** "md" — project cards; "ml" — contact options; "lg" — display-sized links */
+  size?: "md" | "ml" | "lg";
   /** Dark underline/arrow for use on top of the accent colour */
   inverted?: boolean;
+  className?: string;
 };
+
+type LinkProps = Common &
+  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "children" | "className"> & { href: string };
+
+/** Without `href` it renders a <button> with the same look (e.g. a form's submit) */
+type ButtonProps = Common &
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "children" | "className"> & { href?: undefined };
 
 function Arrow({ className = "", strokeWidth }: { className?: string; strokeWidth: number }) {
   return (
@@ -23,6 +30,13 @@ const sizes = {
     arrow: "h-4 w-4 md:h-5 md:w-5",
     stroke: 1.5,
   },
+  ml: {
+    link: "gap-[0.35em] text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-none",
+    text: "pb-[0.14em]",
+    line: "h-px",
+    arrow: "h-[0.6em] w-[0.6em]",
+    stroke: 1.3,
+  },
   lg: {
     link: "gap-[0.3em] text-[clamp(1.75rem,5.6vw,5rem)] font-medium leading-none",
     text: "pb-[0.12em]",
@@ -33,23 +47,20 @@ const sizes = {
 };
 
 /** "View live ↗" — arrow exits top-right and a fresh one slides in from bottom-left. */
-export default function ArrowLink({ href, children, size = "md", inverted = false, className = "", ...rest }: Props) {
+export default function ArrowLink(props: LinkProps | ButtonProps) {
+  const { children, size = "md", inverted = false, className = "", ...rest } = props;
   const s = sizes[size];
-  const external = /^https?:\/\//.test(href);
-  const accent = inverted ? "bg-ink" : "bg-accent";
+  const classes = `group/link inline-flex items-center font-display tracking-tight ${s.link} ${className}`;
 
-  return (
-    <a
-      href={href}
-      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-      {...rest}
-      className={`group/link inline-flex items-center font-display tracking-tight ${s.link} ${className}`}
-    >
+  const inner = (
+    <>
       <span className={`relative ${s.text}`}>
         {children}
         <span
           aria-hidden
-          className={`absolute bottom-0 left-0 w-full origin-right scale-x-0 transition-transform duration-700 ease-expo group-hover/link:origin-left group-hover/link:scale-x-100 ${s.line} ${accent}`}
+          className={`absolute bottom-0 left-0 w-full origin-right scale-x-0 transition-transform duration-700 ease-expo group-hover/link:origin-left group-hover/link:scale-x-100 group-focus-visible/link:origin-left group-focus-visible/link:scale-x-100 ${s.line} ${
+            inverted ? "bg-ink" : "bg-accent"
+          }`}
         />
       </span>
       <span
@@ -66,6 +77,23 @@ export default function ArrowLink({ href, children, size = "md", inverted = fals
           className="absolute inset-0 h-full w-full -translate-x-full translate-y-full transition-transform duration-700 ease-expo group-hover/link:translate-x-0 group-hover/link:translate-y-0"
         />
       </span>
+    </>
+  );
+
+  if (props.href === undefined) {
+    const { href: _href, ...buttonRest } = rest as ButtonProps;
+    return (
+      <button type="button" {...buttonRest} className={classes}>
+        {inner}
+      </button>
+    );
+  }
+
+  const { href, ...linkRest } = rest as LinkProps;
+  const external = /^https?:\/\//.test(href);
+  return (
+    <a href={href} {...(external ? { target: "_blank", rel: "noreferrer" } : {})} {...linkRest} className={classes}>
+      {inner}
     </a>
   );
 }

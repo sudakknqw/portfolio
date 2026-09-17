@@ -9,7 +9,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { easeExpo, scrollSpring } from "@/lib/motion";
+import { scrollSpring } from "@/lib/motion";
 import { useEffect, useRef } from "react";
 import { projects } from "@/lib/projects";
 import ProjectBlock from "./ProjectBlock";
@@ -17,7 +17,8 @@ import ProjectBlock from "./ProjectBlock";
 /** "3 projects shipped" — counts up once, the first time it scrolls into view */
 function ShippedCounter({ total }: { total: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
+  // Starts a bit later (a quarter up the screen) so the count is actually seen, not finished off-screen
+  const inView = useInView(ref, { once: true, margin: "0px 0px -25% 0px" });
   const value = useMotionValue(0);
   const shown = useTransform(value, (v) => Math.round(v));
 
@@ -27,7 +28,8 @@ function ShippedCounter({ total }: { total: number }) {
       value.set(total);
       return;
     }
-    const controls = animate(value, total, { duration: 0.8, ease: easeExpo });
+    // Even pacing: with only a few whole numbers, an ease-out would jump to the final digit almost instantly
+    const controls = animate(value, total, { duration: 1.6, ease: [0.45, 0, 0.55, 1], delay: 0.15 });
     return () => controls.stop();
   }, [inView, total, value]);
 
