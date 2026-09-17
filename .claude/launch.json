@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000, "autoPort": true },
+    { "name": "dev-alt", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "env": { "NEXT_DIST_DIR": ".next-dev" }, "port": 3002, "autoPort": true }
+  ]
+}
