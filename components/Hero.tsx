@@ -53,9 +53,9 @@ export default function Hero() {
               {site.role}
             </motion.p>
             <motion.p variants={fade} custom={0.35} className="label hidden text-right md:block">
-              Bangkok · 13.75° N
-              <br />
               Web products &amp; automation
+              <br />
+              Remote, worldwide
             </motion.p>
           </motion.div>
 
