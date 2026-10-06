@@ -33,7 +33,7 @@ export default function Hero() {
     <section id="top" ref={ref} className="relative h-[130svh] md:h-[180svh]">
       <div className="sticky top-0 flex h-[100svh] flex-col overflow-hidden pt-24 md:pt-32">
         {/* The living object */}
-        <div className="pointer-events-none absolute left-1/2 top-[52%] h-[min(110vw,52rem)] w-[min(110vw,52rem)] -translate-x-1/2 -translate-y-1/2 md:left-full md:top-1/2 md:h-[min(100vw,46rem)] md:w-[min(100vw,46rem)]">
+        <div className="pointer-events-none absolute left-1/2 top-[52%] h-[min(110vw,52rem)] w-[min(110vw,52rem)] -translate-x-1/2 -translate-y-1/2 md:left-[88%] md:top-[39%] md:h-[41vw] md:w-[41vw]">
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
