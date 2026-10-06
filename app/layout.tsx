@@ -21,11 +21,14 @@ const serif = Instrument_Serif({
   display: "swap",
 });
 
+// Explicit fallback: also changes the font hash, which a stale Vercel build cache had split
+// between the page and its CSS (the page pointed at a class the stylesheet no longer defined)
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
+  fallback: ["ui-monospace", "Menlo", "Consolas", "monospace"],
 });
 
 // One source for the tab title and every link preview (Telegram, iMessage, Slack, X…)
