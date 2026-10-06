@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import HowIWork from "@/components/HowIWork";
 import Marquee from "@/components/Marquee";
 import Faq from "@/components/Faq";
+import Terminal from "@/components/Terminal";
 import Work from "@/components/Work";
 
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <Terminal />
         <Work />
         <HowIWork />
         <Faq />
