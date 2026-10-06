@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 // Link preview for Telegram, WhatsApp, iMessage, X…: built at deploy time, no design file to keep in sync
-export const alt = "sudakknqw — Software developer";
+export const alt = "sudakknqw — Full-stack developer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const runtime = "edge";
@@ -28,10 +28,10 @@ async function font(query: string, text: string) {
 }
 
 export default async function OpengraphImage() {
-  const sans = "sudakknqwGoodsoftwarestartsthesurface.SOFTWAREDEVELOPER·WEBPRODUCTS&AUTOMATION[]SUDAKKNQW.COM ";
+  const sans = "sudakknqwWork?FULL-STACKDEVELOPER·WEBSITES,APPS&INTEGRATIONS[]SUDAKKNQW.COM ";
   const [grotesk, serif] = await Promise.all([
     font("family=Inter+Tight:wght@500", sans),
-    font("family=Instrument+Serif:ital@1", "{below}fc"),
+    font("family=Instrument+Serif:ital@1", "{together}"),
   ]);
 
   return new ImageResponse(
@@ -54,20 +54,16 @@ export default async function OpengraphImage() {
           sudakknqw
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", fontSize: 112, fontFamily: "Grotesk", lineHeight: 0.95, letterSpacing: -6 }}>
-          <span>
-            Good so<span style={{ fontFamily: "Serif", letterSpacing: -2 }}>f</span>tware
-          </span>
-          <span>
-            starts<span style={{ fontFamily: "Serif", letterSpacing: -2, marginLeft: 28 }}>{"{below}"}</span>
-          </span>
-          <span style={{ paddingLeft: 180 }}>
-            the surfa<span style={{ fontFamily: "Serif", letterSpacing: -2 }}>c</span>e.
-          </span>
+        <div style={{ display: "flex", alignItems: "baseline", fontSize: 168, fontFamily: "Grotesk", lineHeight: 1, letterSpacing: -9 }}>
+          Work
+          <span style={{ fontFamily: "Serif", letterSpacing: -3, marginLeft: 36, opacity: 0.45 }}>{"{"}</span>
+          <span style={{ fontFamily: "Serif", letterSpacing: -3 }}>together</span>
+          <span style={{ fontFamily: "Serif", letterSpacing: -3, opacity: 0.45 }}>{"}"}</span>
+          ?
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 24, fontFamily: "Grotesk", opacity: 0.8 }}>
-          <span>SOFTWARE DEVELOPER · WEB PRODUCTS & AUTOMATION</span>
+          <span>FULL-STACK DEVELOPER · WEBSITES, APPS & INTEGRATIONS</span>
           <span>[ SUDAKKNQW.COM ]</span>
         </div>
       </div>

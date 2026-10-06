@@ -82,7 +82,7 @@ export default function Contact() {
       <div
         className={`shell relative flex flex-1 flex-col pb-7 pt-24 transition-colors duration-700 ease-expo md:pb-9 md:pt-36 ${ink}`}
       >
-        <p className={`label mb-6 transition-colors duration-700 ${muted}`}>[ 03 ] Contact</p>
+        <p className={`label mb-6 transition-colors duration-700 ${muted}`}>[ 04 ] Contact</p>
 
         <div className="grid grid-cols-12 gap-y-14 md:gap-x-8">
           <motion.div

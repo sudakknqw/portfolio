@@ -29,9 +29,9 @@ const mono = JetBrains_Mono({
 });
 
 // One source for the tab title and every link preview (Telegram, iMessage, Slack, X…)
-const title = "sudakknqw — Software developer";
+const title = "sudakknqw — Full-stack developer";
 const description =
-  "Good software starts below the surface: data model, access rules and security are settled before the first screen. Currently working on web products and automation.";
+  "Full-stack developer. I build what a business runs on: websites, web apps, internal tools and integrations. Schema, access rules and edge cases come first.";
 
 export const metadata: Metadata = {
   // Turns the generated preview image path into an absolute URL that messengers can fetch

@@ -89,10 +89,12 @@ export default function Hero() {
             className="mt-auto grid grid-cols-12 items-end gap-y-8 pb-6 md:gap-x-8 md:pb-9"
           >
             <motion.div variants={fade} custom={INTRO + 1.2} className="col-span-12 md:col-span-5">
-              <p className="caps max-w-[30rem]">
-                Schema, access rules and edge cases come first. I work out the data model before the interface. Right
-                now that&apos;s mostly web products and automation: landing pages, booking systems, integrations
-                between the tools a business already runs on.
+              <p className="max-w-[32rem] font-display text-lead font-medium leading-snug">
+                Full-stack developer. I build what a business runs on: websites, web apps, internal tools and
+                integrations.
+              </p>
+              <p className="caps mt-4 max-w-[30rem] text-fg/60">
+                Schema, access rules and edge cases come first, before the first screen.
               </p>
               <div className="mt-6">
                 <StatusBadge />

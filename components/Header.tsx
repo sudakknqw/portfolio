@@ -8,6 +8,7 @@ import BracketButton from "./BracketButton";
 const NAV = [
   ["Work", "#work"],
   ["Process", "#process"],
+  ["FAQ", "#faq"],
   ["Contact", "#contact"],
 ] as const;
 
