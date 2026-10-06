@@ -6,23 +6,35 @@ import { scrollSpring } from "@/lib/motion";
 import { projects } from "@/lib/projects";
 
 /**
- * `cmd` lines are typed letter by letter; output lines appear whole, like a real shell.
- * `extra` is the tail of an output line, dropped on phones so nothing wraps.
+ * `cmd` lines are typed letter by letter; everything else appears whole, like a real shell.
+ * `mark` is a gutter symbol (✓, ├, ▲…); `extra` is a line tail dropped on phones so nothing wraps.
  */
-type Line = { kind: "cmd" | "out" | "ok" | "dim"; text: string; extra?: string };
+type Line = { kind: "cmd" | "out" | "ok" | "dim" | "head"; text: string; mark?: string; extra?: string };
 
-const pad = Math.max(...projects.map((p) => p.slug.length)) + 3;
+const pad = Math.max(...projects.map((p) => p.slug.length)) + 4;
 
+// Reads like a real `next build`, but the route table is the list of projects that follows
 const SCRIPT: Line[] = [
-  { kind: "cmd", text: "cd ~/work && npm run show" },
-  { kind: "dim", text: "> sudakknqw@work show" },
-  { kind: "dim", text: "> next build --selected" },
+  { kind: "cmd", text: "cd ~/projects && npm run build" },
+  { kind: "dim", text: "> selected-work@1.0.0 build" },
+  { kind: "dim", text: "> next build" },
   { kind: "out", text: "" },
-  { kind: "out", text: "  Collecting projects…" },
-  ...projects.map((p) => ({ kind: "ok" as const, text: p.slug.padEnd(pad), extra: p.type })),
+  { kind: "head", mark: "▲", text: "Next.js 14.2" },
+  { kind: "out", text: "  Creating an optimized production build …" },
+  { kind: "ok", mark: "✓", text: "Compiled successfully" },
+  { kind: "ok", mark: "✓", text: "Schema, access rules, edge cases checked" },
   { kind: "out", text: "" },
-  { kind: "out", text: `  Compiled ${projects.length} projects.`, extra: " Schema checked, access rules on." },
-  { kind: "cmd", text: "open ./selected-work" },
+  { kind: "head", text: "  Route (projects)" },
+  ...projects.map((p, i) => ({
+    kind: "out" as const,
+    mark: i === projects.length - 1 ? "└ ○" : "├ ○",
+    text: `/${p.slug}`.padEnd(pad),
+    extra: p.type,
+  })),
+  { kind: "out", text: "" },
+  { kind: "ok", mark: "✓", text: `${projects.length} projects ready` },
+  { kind: "cmd", text: "npm start -- --open selected-work" },
+  { kind: "head", mark: "▲", text: "Ready. Opening selected work →" },
 ];
 
 // Each line costs "ticks" of scroll: one per typed letter, a few for an output line
@@ -61,8 +73,7 @@ export default function Terminal() {
     const c = cost(line);
     if (line.kind === "cmd") {
       const n = Math.min(line.text.length, left);
-      // The last command keeps its cursor: it is "running" as the window opens
-      shown.push({ line, text: line.text.slice(0, n), typing: n < line.text.length || line === SCRIPT[SCRIPT.length - 1] });
+      shown.push({ line, text: line.text.slice(0, n), typing: n < line.text.length });
     } else {
       shown.push({ line, text: line.text, typing: false });
     }
@@ -98,8 +109,8 @@ export default function Terminal() {
           >
             {shown.map(({ line, text, typing }, i) => (
               <div key={i} className={line.kind === "dim" ? "text-fg/45" : line.kind === "out" ? "text-fg/70" : ""}>
-                {line.kind === "cmd" && <span className="mr-3 text-fg/50">~/work $</span>}
-                {line.kind === "ok" && <span className="mr-3">  ✓</span>}
+                {line.kind === "cmd" && <span className="mr-3 text-fg/50">{i === 0 ? "~ $" : "~/projects $"}</span>}
+                {line.mark && <span className={`mr-2 ${line.kind === "out" ? "text-fg/40" : ""}`}>  {line.mark}</span>}
                 {text || " "}
                 {line.extra && <span className="hidden sm:inline">{line.extra}</span>}
                 {typing && <span className="ml-px inline-block h-[1.1em] w-[0.6em] translate-y-[0.2em] bg-fg" />}
@@ -109,7 +120,7 @@ export default function Terminal() {
             {!shown.some((s) => s.typing) && (
               <div>
                 {/* A prompt before anything runs; while output streams, only the cursor */}
-                {shown.length === 0 && <span className="mr-3 text-fg/50">~/work $</span>}
+                {shown.length === 0 && <span className="mr-3 text-fg/50">~ $</span>}
                 <span className="inline-block h-[1.1em] w-[0.6em] translate-y-[0.2em] animate-pulse bg-fg" />
               </div>
             )}
