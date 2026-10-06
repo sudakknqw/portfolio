@@ -23,17 +23,17 @@ export default function Hero() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const p = useSpring(scrollYProgress, scrollSpring);
 
-  const bloomScale = useTransform(p, [0, 1], [1, 1.7]);
+  const bloomScale = useTransform(p, [0, 1], [1, 1.12]);
   const bloomOpacity = useTransform(p, [0, 0.15], [0.85, 1]);
   const pullLeft = useTransform(p, [0, 1], ["0%", "-10%"]);
-  const pullRight = useTransform(p, [0, 1], ["0%", "12%"]);
+  const pullSoft = useTransform(p, [0, 1], ["0%", "-5%"]);
   const fadeOut = useTransform(p, [0, 0.6], [1, 0]);
 
   return (
     <section id="top" ref={ref} className="relative h-[130svh] md:h-[180svh]">
       <div className="sticky top-0 flex h-[100svh] flex-col overflow-hidden pt-24 md:pt-32">
         {/* The living object */}
-        <div className="pointer-events-none absolute left-1/2 top-[52%] h-[min(110vw,52rem)] w-[min(110vw,52rem)] -translate-x-1/2 -translate-y-1/2 md:left-[64%]">
+        <div className="pointer-events-none absolute left-1/2 top-[52%] h-[min(110vw,52rem)] w-[min(110vw,52rem)] -translate-x-1/2 -translate-y-1/2 md:left-full md:top-1/2 md:h-[min(100vw,46rem)] md:w-[min(100vw,46rem)]">
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -70,7 +70,7 @@ export default function Hero() {
                 className="font-display text-display-xxl font-medium"
               />
             </motion.div>
-            <motion.div style={{ x: pullRight }}>
+            <motion.div style={{ x: pullSoft }}>
               <SplitText
                 as="p"
                 trigger="mount"
