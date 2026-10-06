@@ -1,8 +1,7 @@
 "use client";
 
-import { motion, useMotionValueEvent, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useAnimationFrame, useMotionValue, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
-import { scrollSpring } from "@/lib/motion";
 import { projects } from "@/lib/projects";
 
 /**
@@ -46,6 +45,10 @@ const TYPE = [0.03, 0.48] as const; // the build types out
 const NOISE = [0.5, 0.68] as const; // terminal text breaks into glyphs
 const DECODE = [0.6, 0.9] as const; // the heading resolves letter by letter
 
+// Fastest the sequence may advance (share of the whole per second), and the glyph shimmer rate
+const MAX_SPEED = 0.55;
+const SHIMMER_MS = 70;
+
 const GLYPHS = "!<>-_\\/[]{}=+*^?#%&$01░▒";
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const range = (v: number, [a, b]: readonly [number, number]) => clamp01((v - a) / (b - a));
@@ -84,19 +87,36 @@ const HEADING: { ch: string; serif: boolean; dim: boolean }[] = [
 export default function Terminal() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const p = useSpring(scrollYProgress, scrollSpring);
+  const reduced = useReducedMotion();
 
-  // Rendering is driven by one number; state only changes when it visibly would
-  const [v, setV] = useState(0);
-  useMotionValueEvent(p, "change", (next) => {
-    const q = Math.round(next * 400) / 400;
-    setV((prev) => (prev === q ? prev : q));
+  // The animation chases the scroll position with a capped speed, so a fast flick of the wheel
+  // plays the sequence out smoothly (catching up a moment later) instead of jumping through it
+  const p = useMotionValue(0);
+  const [frame, setFrame] = useState({ v: 0, seed: 0 });
+  useAnimationFrame((time, delta) => {
+    const target = scrollYProgress.get();
+    const cur = p.get();
+    if (reduced || Math.abs(target - cur) < 0.0005) {
+      if (cur !== target) p.set(target);
+    } else {
+      const dt = Math.min(delta, 50) / 1000;
+      const eased = (target - cur) * (1 - Math.exp(-dt * 5));
+      // Speeds up when far behind, so a fast scroll never leaves the heading half-decoded for long
+      const cap = dt * (MAX_SPEED + Math.abs(target - cur) * 2);
+      p.set(cur + Math.max(-cap, Math.min(cap, eased)));
+    }
+
+    // Re-render only when something visible changes: the position, or the glyph shimmer mid-transition
+    const v = Math.round(p.get() * 400) / 400;
+    const shimmering = v > NOISE[0] && v < DECODE[1];
+    const seed = shimmering && !reduced ? Math.floor(time / SHIMMER_MS) : 0;
+    setFrame((f) => (f.v === v && f.seed === seed ? f : { v, seed }));
   });
 
+  const { v, seed } = frame;
   const ticks = Math.round(range(v, TYPE) * TOTAL);
   const noise = range(v, NOISE);
   const decode = range(v, DECODE);
-  const seed = Math.floor(v * 160); // glyphs reshuffle as you scroll, hold still when you stop
 
   const windowOpacity = useTransform(p, [0.58, 0.72], [1, 0]);
   const windowScale = useTransform(p, [0.5, 0.72], [1, 0.94]);
