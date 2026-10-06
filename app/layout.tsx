@@ -34,6 +34,8 @@ const description =
   "Good software starts below the surface: data model, access rules and security are settled before the first screen. Currently working on web products and automation.";
 
 export const metadata: Metadata = {
+  // Turns the generated preview image path into an absolute URL that messengers can fetch
+  metadataBase: new URL("https://sudakknqw.com"),
   title,
   description,
   openGraph: {
@@ -44,7 +46,7 @@ export const metadata: Metadata = {
     description,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title,
     description,
   },
