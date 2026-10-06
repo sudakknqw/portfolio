@@ -41,91 +41,153 @@ const SCRIPT: Line[] = [
 const cost = (l: Line) => (l.kind === "cmd" ? l.text.length : 4);
 const TOTAL = SCRIPT.reduce((n, l) => n + cost(l), 0);
 
+// Scroll ranges (0…1 of the pinned stretch)
+const TYPE = [0.03, 0.48] as const; // the build types out
+const NOISE = [0.5, 0.68] as const; // terminal text breaks into glyphs
+const DECODE = [0.6, 0.9] as const; // the heading resolves letter by letter
+
+const GLYPHS = "!<>-_\\/[]{}=+*^?#%&$01░▒";
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+const range = (v: number, [a, b]: readonly [number, number]) => clamp01((v - a) / (b - a));
+
+/** Cheap deterministic noise: same scroll position, same glyphs (no flicker while still) */
+function hash(i: number, seed: number) {
+  const x = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+const glyph = (i: number, seed: number) => GLYPHS[Math.floor(hash(i, seed) * GLYPHS.length)];
+
+/** Replaces a share of a string's letters with glyphs; `offset` keeps lines from scrambling in sync */
+function scramble(text: string, amount: number, seed: number, offset: number) {
+  if (amount <= 0) return text;
+  let out = "";
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    out += ch !== " " && hash(i + offset, 7) < amount ? glyph(i + offset, seed) : ch;
+  }
+  return out;
+}
+
+// The heading the noise decodes into: letters with their typeface
+const HEADING: { ch: string; serif: boolean; dim: boolean }[] = [
+  ..."Selected".split("").map((ch) => ({ ch, serif: false, dim: false })),
+  { ch: " ", serif: false, dim: false },
+  { ch: "{", serif: true, dim: true },
+  ..."work".split("").map((ch) => ({ ch, serif: true, dim: false })),
+  { ch: "}", serif: true, dim: true },
+];
+
 /**
  * Bridge between the hero and the work: a terminal types out a build as you scroll,
- * then the window grows to fill the screen and hands over to the projects.
+ * its output breaks into noise, and the noise decodes into the "Selected {work}" heading.
  */
 export default function Terminal() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const p = useSpring(scrollYProgress, scrollSpring);
 
-  // Typing runs over the first two thirds of the pinned scroll, the zoom over the rest
-  const [ticks, setTicks] = useState(0);
-  useMotionValueEvent(p, "change", (v) => {
-    const t = Math.round(Math.min(1, Math.max(0, (v - 0.04) / 0.58)) * TOTAL);
-    setTicks((prev) => (prev === t ? prev : t));
+  // Rendering is driven by one number; state only changes when it visibly would
+  const [v, setV] = useState(0);
+  useMotionValueEvent(p, "change", (next) => {
+    const q = Math.round(next * 400) / 400;
+    setV((prev) => (prev === q ? prev : q));
   });
 
-  // Then the window opens up while the work section slides over it
-  const scale = useTransform(p, [0.64, 1], [1, 1.9]);
-  const radius = useTransform(p, [0.64, 1], [18, 0]);
-  const fill = useTransform(p, [0.64, 1], ["#17110D", "#100C09"]);
-  const textOpacity = useTransform(p, [0.66, 0.85], [1, 0]);
-  const chromeOpacity = useTransform(p, [0.7, 0.9], [1, 0]);
-  const caption = useTransform(p, [0, 0.08, 0.6, 0.7], [0, 1, 1, 0]);
+  const ticks = Math.round(range(v, TYPE) * TOTAL);
+  const noise = range(v, NOISE);
+  const decode = range(v, DECODE);
+  const seed = Math.floor(v * 160); // glyphs reshuffle as you scroll, hold still when you stop
+
+  const windowOpacity = useTransform(p, [0.58, 0.72], [1, 0]);
+  const windowScale = useTransform(p, [0.5, 0.72], [1, 0.94]);
+  const caption = useTransform(p, [0, 0.06, 0.45, 0.52], [0, 1, 1, 0]);
 
   // Walk the script, spending ticks
   let left = ticks;
   const shown: { line: Line; text: string; typing: boolean }[] = [];
   for (const line of SCRIPT) {
     if (left <= 0) break;
-    const c = cost(line);
     if (line.kind === "cmd") {
       const n = Math.min(line.text.length, left);
       shown.push({ line, text: line.text.slice(0, n), typing: n < line.text.length });
     } else {
       shown.push({ line, text: line.text, typing: false });
     }
-    left -= c;
+    left -= cost(line);
   }
 
   return (
-    <section
-      ref={ref}
-      aria-label="Opening selected work"
-      className="relative z-10 h-[260svh] rounded-t-[2rem] border-t border-line bg-ink md:rounded-t-[3rem]"
-    >
+    <section ref={ref} aria-label="Opening selected work" className="relative z-10 h-[300svh] rounded-t-[2rem] border-t border-line bg-ink md:rounded-t-[3rem]">
       <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden px-4 md:px-10">
         <motion.div
-          style={{ scale, borderRadius: radius, backgroundColor: fill }}
-          className="relative flex h-[min(70svh,34rem)] w-full max-w-[56rem] flex-col overflow-hidden border border-line shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)] will-change-transform"
+          style={{ opacity: windowOpacity, scale: windowScale }}
+          className="relative flex h-[min(70svh,34rem)] w-full max-w-[56rem] flex-col overflow-hidden rounded-[18px] border border-line bg-ink-2 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)] will-change-transform"
         >
           {/* Title bar */}
-          <motion.div style={{ opacity: chromeOpacity }} className="flex h-10 shrink-0 items-center gap-4 border-b border-line px-4">
+          <div className="flex h-10 shrink-0 items-center gap-4 border-b border-line px-4">
             <span className="flex gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-fg/80" />
               <span className="h-2.5 w-2.5 rounded-full bg-fg/45" />
               <span className="h-2.5 w-2.5 rounded-full bg-fg/20" />
             </span>
-            <span className="flex-1 truncate text-center font-mono text-[11px] text-fg/50">zsh — sudakknqw — 80×24</span>
+            <span className="flex-1 truncate text-center font-mono text-[11px] text-fg/50">
+              {scramble("zsh — sudakknqw — 80×24", noise, seed, 999)}
+            </span>
             <span className="w-[42px]" />
-          </motion.div>
+          </div>
 
           {/* Output */}
-          <motion.pre
-            style={{ opacity: textOpacity }}
-            className="flex-1 overflow-hidden whitespace-pre-wrap p-4 font-mono text-[11px] leading-[1.75] text-fg sm:text-[13px] md:p-6 md:text-[15px]"
-          >
+          <pre className="flex-1 overflow-hidden whitespace-pre-wrap p-4 font-mono text-[11px] leading-[1.75] text-fg sm:text-[13px] md:p-6 md:text-[15px]">
             {shown.map(({ line, text, typing }, i) => (
               <div key={i} className={line.kind === "dim" ? "text-fg/45" : line.kind === "out" ? "text-fg/70" : ""}>
-                {line.kind === "cmd" && <span className="mr-3 text-fg/50">{i === 0 ? "~ $" : "~/projects $"}</span>}
-                {line.mark && <span className={`mr-2 ${line.kind === "out" ? "text-fg/40" : ""}`}>  {line.mark}</span>}
-                {text || " "}
-                {line.extra && <span className="hidden sm:inline">{line.extra}</span>}
+                {line.kind === "cmd" && (
+                  <span className="mr-3 text-fg/50">{scramble(i === 0 ? "~ $" : "~/projects $", noise, seed, i * 50)}</span>
+                )}
+                {line.mark && (
+                  <span className={`mr-2 ${line.kind === "out" ? "text-fg/40" : ""}`}>  {scramble(line.mark, noise, seed, i * 50 + 5)}</span>
+                )}
+                {scramble(text, noise, seed, i * 50 + 10) || " "}
+                {line.extra && <span className="hidden sm:inline">{scramble(line.extra, noise, seed, i * 50 + 30)}</span>}
                 {typing && <span className="ml-px inline-block h-[1.1em] w-[0.6em] translate-y-[0.2em] bg-fg" />}
               </div>
             ))}
-            {/* Idle prompt with a blinking block while nothing is being typed */}
+            {/* Idle cursor while nothing is being typed; a prompt before anything runs */}
             {!shown.some((s) => s.typing) && (
               <div>
-                {/* A prompt before anything runs; while output streams, only the cursor */}
                 {shown.length === 0 && <span className="mr-3 text-fg/50">~ $</span>}
                 <span className="inline-block h-[1.1em] w-[0.6em] translate-y-[0.2em] animate-pulse bg-fg" />
               </div>
             )}
-          </motion.pre>
+          </pre>
         </motion.div>
+
+        {/* The heading the noise decodes into. Each letter flickers through glyphs, then locks in place. */}
+        {decode > 0 && (
+          <h2
+            aria-label="Selected work"
+            className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-center font-display text-[clamp(3rem,13vw,13rem)] font-medium leading-none tracking-[-0.05em]"
+          >
+            {HEADING.map((c, i) => {
+              if (c.ch === " ") return <span key={i}> </span>;
+              // Letters lock left to right, with a little jitter so it doesn't read as a sweep
+              const lock = 0.25 + 0.6 * (i / HEADING.length) + hash(i, 3) * 0.12;
+              const appear = lock - 0.3;
+              const visible = decode > appear;
+              const locked = decode >= lock;
+              return (
+                <span
+                  key={i}
+                  aria-hidden
+                  className={`inline-block ${c.serif ? "font-serif font-normal tracking-[-0.02em]" : ""} ${
+                    locked ? (c.dim ? "opacity-45" : "") : "font-mono font-normal opacity-70"
+                  } ${visible ? "" : "opacity-0"}`}
+                >
+                  {locked ? c.ch : glyph(i, seed + i)}
+                </span>
+              );
+            })}
+          </h2>
+        )}
 
         <motion.p style={{ opacity: caption }} className="label absolute bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
           Keep scrolling ↓

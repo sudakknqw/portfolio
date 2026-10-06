@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { easeExpo } from "@/lib/motion";
 import { projects } from "@/lib/projects";
 import ProjectBlock from "./ProjectBlock";
-import SplitText from "./SplitText";
 
 const WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
 
@@ -12,22 +11,17 @@ export default function Work() {
   const count = WORDS[projects.length] ?? String(projects.length);
 
   return (
-    // Pulled up over the end of the pinned terminal, so the projects slide in as its window opens
-    <section
-      id="work"
-      className="relative z-10 -mt-[50svh] rounded-t-[2rem] border-t border-line bg-ink md:rounded-t-[3rem]"
-    >
-      <div className="shell grid grid-cols-12 gap-y-10 pb-16 pt-24 md:gap-x-8 md:pb-24 md:pt-36">
-        <div className="col-span-12 md:col-span-8">
-          <p className="label mb-6">[ 01 ] Work</p>
-          <SplitText text={"Selected\n{work}"} lineClassNames={["", "md:pl-[8vw]"]} className="font-display text-display-xl font-medium" />
-        </div>
+    // The "Selected {work}" heading lives at the end of the terminal, decoded from its output.
+    // Pulled up (no background) so this intro rises under the heading while it is still pinned
+    <section id="work" className="relative z-10 -mt-[40svh]">
+      <div className="shell grid grid-cols-12 items-end gap-y-6 pb-14 pt-6 md:gap-x-8 md:pb-20">
+        <p className="label col-span-12 md:col-span-8">[ 01 ] Work</p>
         <motion.p
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "0px 0px -10% 0px" }}
           transition={{ duration: 1.4, ease: easeExpo, delay: 0.3 }}
-          className="caps col-span-12 max-w-[26rem] self-end md:col-span-4"
+          className="caps col-span-12 max-w-[26rem] md:col-span-4"
         >
           {count} shipped projects. Each one is here because it proves something specific, listed right under the
           title.
