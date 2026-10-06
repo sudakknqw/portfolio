@@ -3,30 +3,13 @@
 import { useId, useState } from "react";
 import { site } from "@/lib/site";
 import BracketButton from "./BracketButton";
-import Select from "./Select";
-
-const BUDGETS = ["Under $150", "$150–500", "$500+", "Not sure yet"];
-const TIMELINES = ["ASAP", "Within a week", "No rush"];
-
-/** Turns the answers into a ready-to-send Telegram message. Empty answers are left out. */
-function buildMessage(need: string, budget: string, timeline: string) {
-  return [
-    "Hi! I found you through your portfolio.",
-    need && `What I need: ${need}`,
-    budget && `Budget: ${budget}`,
-    timeline && `Timeline: ${timeline}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
 
 type Notice = { tone: "ok" | "error"; text: string } | null;
 
+/** One field, one button: the answer becomes a ready-to-send Telegram message. */
 export default function ContactForm({ inverted = false }: { inverted?: boolean }) {
   const id = useId();
   const [need, setNeed] = useState("");
-  const [budget, setBudget] = useState("");
-  const [timeline, setTimeline] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
 
   const submit = (e: React.FormEvent) => {
@@ -37,7 +20,7 @@ export default function ContactForm({ inverted = false }: { inverted?: boolean }
       return;
     }
 
-    const text = buildMessage(trimmed, budget, timeline);
+    const text = `Hi! I found you through your portfolio.\nWhat I need: ${trimmed}`;
 
     // Telegram documents t.me/<username>?text= as a draft pre-fill, but not every client honours it —
     // so the text is also copied. Clipboard write starts before the new tab steals focus.
@@ -53,52 +36,43 @@ export default function ContactForm({ inverted = false }: { inverted?: boolean }
     });
   };
 
-  const field = `w-full appearance-none rounded-none border-b bg-transparent pb-[0.55rem] pt-1 text-base outline-none transition-colors duration-500 ${
-    inverted
-      ? "border-ink/25 text-ink placeholder:text-ink/45 focus:border-ink"
-      : "border-fg/20 text-fg placeholder:text-fg/35 focus:border-accent"
-  }`;
-  const label = `label mb-2 block transition-colors duration-700 ${inverted ? "text-ink/60" : ""}`;
-
   return (
     <form onSubmit={submit} noValidate>
-      <div className="grid gap-x-6 gap-y-7 md:grid-cols-[1.5fr_1fr_1fr]">
-        <div>
-          <label htmlFor={`${id}-need`} className={label}>
-            What do you need?
-          </label>
-          <input
-            id={`${id}-need`}
-            value={need}
-            onChange={(e) => {
-              setNeed(e.target.value);
-              if (notice?.tone === "error") setNotice(null);
-            }}
-            placeholder="Landing page, automation, a fix…"
-            maxLength={200}
-            autoComplete="off"
-            aria-invalid={notice?.tone === "error"}
-            className={field}
-          />
-        </div>
-
-        <Select label="Budget range" options={BUDGETS} value={budget} onChange={setBudget} inverted={inverted} />
-        <Select label="Timeline" options={TIMELINES} value={timeline} onChange={setTimeline} inverted={inverted} />
-      </div>
-
-      <div className="mt-[2.4rem] flex flex-wrap items-center gap-x-8 gap-y-3">
-        <BracketButton type="submit" inverted={inverted} className="text-base md:text-lg">
-          Send via Telegram
-        </BracketButton>
-        <p
-          aria-live="polite"
-          className={`min-h-[1.25rem] text-sm transition-colors duration-700 ${
-            notice?.tone === "error" ? (inverted ? "text-ink" : "text-accent") : inverted ? "text-ink/60" : "text-fg/60"
+      <label htmlFor={`${id}-need`} className={`label mb-3 block transition-colors duration-700 ${inverted ? "text-ink/60" : ""}`}>
+        What do you need?
+      </label>
+      <div
+        className={`flex flex-wrap items-end gap-x-6 gap-y-5 border-b pb-3 transition-colors duration-500 ${
+          inverted ? "border-ink/25 focus-within:border-ink" : "border-fg/25 focus-within:border-fg"
+        }`}
+      >
+        <input
+          id={`${id}-need`}
+          value={need}
+          onChange={(e) => {
+            setNeed(e.target.value);
+            if (notice?.tone === "error") setNotice(null);
+          }}
+          placeholder="Landing page, booking system, a fix…"
+          maxLength={200}
+          autoComplete="off"
+          aria-invalid={notice?.tone === "error"}
+          className={`min-w-0 flex-1 basis-[16rem] appearance-none rounded-none bg-transparent font-display text-[clamp(1.25rem,2.4vw,2rem)] tracking-[-0.02em] outline-none transition-colors duration-500 ${
+            inverted ? "text-ink placeholder:text-ink/40" : "text-fg placeholder:text-fg/35"
           }`}
-        >
-          {notice?.text}
-        </p>
+        />
+        <BracketButton type="submit" inverted={inverted} className="text-base md:text-lg">
+          Send
+        </BracketButton>
       </div>
+      <p
+        aria-live="polite"
+        className={`mt-3 min-h-[1.25rem] text-sm transition-colors duration-700 ${
+          inverted ? "text-ink/70" : notice?.tone === "error" ? "text-fg" : "text-fg/60"
+        }`}
+      >
+        {notice?.text}
+      </p>
     </form>
   );
 }

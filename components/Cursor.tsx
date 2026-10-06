@@ -7,10 +7,12 @@ import { useFinePointer } from "@/lib/useFinePointer";
 const INTERACTIVE = "a, button, [data-cursor='hover']";
 const RING = 64; // px at full size; the idle ring is scaled down, never resized
 const RING_IDLE = 36 / RING;
+const RING_LABEL = 96 / RING;
 
 /**
  * Replaces the native cursor on desktop:
  * a small accent dot glued to the pointer + a soft ring that trails behind it.
+ * Over anything with `data-cursor-label="View"` the ring fills and shows that word.
  */
 export default function Cursor() {
   const fine = useFinePointer();
@@ -22,7 +24,8 @@ export default function Cursor() {
   const [visible, setVisible] = useState(false);
   const [invert, setInvert] = useState(false); // on an accent background: dot + ring go dark
   const [darkDot, setDarkDot] = useState(false); // on an accent background
-  const state = useRef({ hovering: false, visible: false, invert: false, darkDot: false });
+  const [label, setLabel] = useState("");
+  const state = useRef({ hovering: false, visible: false, invert: false, darkDot: false, label: "" });
 
   useEffect(() => {
     if (!fine) return;
@@ -39,6 +42,8 @@ export default function Cursor() {
       const over = !!target?.closest?.(INTERACTIVE);
       const inv = !!target?.closest?.("[data-cursor='invert']");
       const dot = inv;
+      const lbl = target?.closest?.("[data-cursor-label]")?.getAttribute("data-cursor-label") ?? "";
+      if (lbl !== s.label) setLabel((s.label = lbl));
       if (inv !== s.invert) setInvert((s.invert = inv));
       if (dot !== s.darkDot) setDarkDot((s.darkDot = dot));
       if (over !== s.hovering) setHovering((s.hovering = over));
@@ -52,13 +57,20 @@ export default function Cursor() {
       if (!frame) frame = requestAnimationFrame(inspect);
     };
     const onLeave = () => setVisible((state.current.visible = false));
+    // Scrolling moves the page under a still pointer: re-check what it is over
+    const onScroll = () => {
+      target = document.elementFromPoint(x.get(), y.get());
+      if (!frame && state.current.visible) frame = requestAnimationFrame(inspect);
+    };
 
     window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     document.documentElement.addEventListener("pointerleave", onLeave);
     return () => {
       cancelAnimationFrame(frame);
       document.documentElement.classList.remove("has-custom-cursor");
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("scroll", onScroll);
       document.documentElement.removeEventListener("pointerleave", onLeave);
     };
   }, [fine, x, y]);
@@ -80,13 +92,15 @@ export default function Cursor() {
           style={{ width: RING, height: RING, x: "-50%", y: "-50%" }}
           initial={false}
           animate={{
-            scale: hovering ? 1 : RING_IDLE,
+            scale: label ? RING_LABEL : hovering ? 1 : RING_IDLE,
             borderColor: invert
               ? "rgba(10,10,10,0.75)"
               : hovering
                 ? "rgba(255,90,31,0.9)"
                 : "rgba(255,90,31,0.4)",
-            backgroundColor: invert
+            backgroundColor: label
+              ? "rgba(255,90,31,1)"
+              : invert
               ? "rgba(10,10,10,0)"
               : hovering
                 ? "rgba(255,90,31,0.08)"
@@ -95,6 +109,16 @@ export default function Cursor() {
           }}
           transition={soft}
         />
+        {/* Label sits outside the scaled circle so the text stays crisp */}
+        <motion.span
+          className="absolute left-0 top-0 whitespace-nowrap font-display text-[0.8125rem] font-medium uppercase text-ink"
+          style={{ x: "-50%", y: "-50%" }}
+          initial={false}
+          animate={{ opacity: label && visible ? 1 : 0, scale: label ? 1 : 0.6 }}
+          transition={soft}
+        >
+          {label}
+        </motion.span>
       </motion.div>
 
       {/* Dot — exact pointer position */}
@@ -109,7 +133,7 @@ export default function Cursor() {
           initial={false}
           animate={{
             scale: hovering ? 0.6 : 1,
-            opacity: visible ? 1 : 0,
+            opacity: visible && !label ? 1 : 0,
             backgroundColor: darkDot ? "rgb(10,10,10)" : "rgb(255,90,31)",
           }}
           transition={soft}

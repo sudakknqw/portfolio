@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import ConsoleGreeting from "@/components/ConsoleGreeting";
 import Cursor from "@/components/Cursor";
+import Preloader from "@/components/Preloader";
 import Providers from "@/components/Providers";
 import "./globals.css";
 
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Cursor />
           <ConsoleGreeting />
+          <Preloader />
         </Providers>
         <div className="grain" aria-hidden />
       </body>

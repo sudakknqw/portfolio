@@ -89,3 +89,13 @@ html.has-custom-cursor * {
     animation: none;
   }
 }
+
+/* Preloader safety net: if JavaScript never runs, it still gets out of the way */
+@keyframes preloader-fallback {
+  to {
+    visibility: hidden;
+  }
+}
+.preloader {
+  animation: preloader-fallback 0s linear 4s forwards;
+}

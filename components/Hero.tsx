@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useSpring, useTransform, type Variants } from "framer-motion";
 import { useRef } from "react";
-import { easeExpo, scrollSpring } from "@/lib/motion";
+import { easeExpo, INTRO, scrollSpring } from "@/lib/motion";
 import { site } from "@/lib/site";
 import Bloom from "./Bloom";
 import BracketButton from "./BracketButton";
@@ -37,7 +37,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 2.4, ease: easeExpo, delay: 0.3 }}
+            transition={{ duration: 2.4, ease: easeExpo, delay: INTRO }}
             className="h-full w-full"
           >
             <motion.div style={{ scale: bloomScale, opacity: bloomOpacity }} className="h-full w-full">
@@ -48,11 +48,11 @@ export default function Hero() {
 
         <div className="shell relative flex flex-1 flex-col">
           <motion.div initial="hidden" animate="show" className="flex items-start justify-between">
-            <motion.p variants={fade} custom={0.2} className="label flex items-center gap-3">
+            <motion.p variants={fade} custom={INTRO + 0.2} className="label flex items-center gap-3">
               <span className="h-px w-8 bg-accent" />
               {site.role}
             </motion.p>
-            <motion.p variants={fade} custom={0.35} className="label hidden text-right md:block">
+            <motion.p variants={fade} custom={INTRO + 0.35} className="label hidden text-right md:block">
               Web products &amp; automation
               <br />
               Remote, worldwide
@@ -64,7 +64,7 @@ export default function Hero() {
               <SplitText
                 as="h1"
                 trigger="mount"
-                delay={0.35}
+                delay={INTRO + 0.05}
                 text={"Good so_f_tware\nstarts {below}"}
                 lineClassNames={["", "md:pl-[10vw]"]}
                 className="font-display text-display-xxl font-medium"
@@ -74,7 +74,7 @@ export default function Hero() {
               <SplitText
                 as="p"
                 trigger="mount"
-                delay={0.85}
+                delay={INTRO + 0.55}
                 text={"~the~ surfa_c_e."}
                 lineClassNames={["md:pl-[22vw]"]}
                 className="font-display text-display-xxl font-medium"
@@ -88,7 +88,7 @@ export default function Hero() {
             style={{ opacity: fadeOut }}
             className="mt-auto grid grid-cols-12 items-end gap-y-8 pb-6 md:gap-x-8 md:pb-9"
           >
-            <motion.div variants={fade} custom={1.2} className="col-span-12 md:col-span-5">
+            <motion.div variants={fade} custom={INTRO + 1.2} className="col-span-12 md:col-span-5">
               <p className="caps max-w-[30rem]">
                 Schema, access rules and edge cases come first. I work out the data model before the interface. Right
                 now that&apos;s mostly web products and automation: landing pages, booking systems, integrations
@@ -101,7 +101,7 @@ export default function Hero() {
 
             <motion.div
               variants={fade}
-              custom={1.35}
+              custom={INTRO + 1.35}
               className="col-span-12 flex items-end justify-between gap-6 md:col-span-4 md:col-start-9 md:justify-end"
             >
               <BracketButton href="#work" className="text-sm">

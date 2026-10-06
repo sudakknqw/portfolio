@@ -8,6 +8,6 @@
 export const STATUS = {
   available: true,
   message: "Available for new projects",
-  location: "Bangkok, GMT+7",
+  location: "GMT +7",
   responseTime: "Usually replies within a few hours",
 };

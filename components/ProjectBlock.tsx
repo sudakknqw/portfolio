@@ -81,6 +81,7 @@ export default function ProjectBlock({
               target="_blank"
               rel="noreferrer"
               aria-label={`Open ${project.title} live`}
+              data-cursor-label="View"
               className="col-span-12 block self-center md:col-span-7"
             >
               <DeviceFrame project={project} />

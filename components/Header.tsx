@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { site } from "@/lib/site";
-import { easeExpo } from "@/lib/motion";
+import { easeExpo, INTRO } from "@/lib/motion";
 import BracketButton from "./BracketButton";
 
 const NAV = [
@@ -17,7 +17,7 @@ export default function Header() {
     <motion.header
       initial={{ y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 1.4, ease: easeExpo, delay: 0.1 }}
+      transition={{ duration: 1.4, ease: easeExpo, delay: INTRO - 0.2 }}
       className="fixed inset-x-0 top-0 z-50 pt-3 md:pt-4"
     >
       <div className="shell">
