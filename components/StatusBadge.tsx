@@ -22,11 +22,11 @@ export default function StatusBadge() {
       </span>
 
       <span className="flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
-        <span className="text-[0.9375rem] font-medium leading-snug text-bone">{message}</span>
+        <span className="text-[0.9375rem] font-medium leading-snug text-fg">{message}</span>
         {details && (
           <>
-            <span aria-hidden className="hidden h-3.5 w-px bg-bone/25 md:block" />
-            <span className="text-[0.875rem] leading-snug text-bone/70">{details}</span>
+            <span aria-hidden className="hidden h-3.5 w-px bg-fg/25 md:block" />
+            <span className="text-[0.875rem] leading-snug text-fg/70">{details}</span>
           </>
         )}
       </span>

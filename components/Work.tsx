@@ -1,89 +1,41 @@
 "use client";
 
-import {
-  animate,
-  motion,
-  useInView,
-  useMotionValue,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import { scrollSpring } from "@/lib/motion";
-import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { easeExpo } from "@/lib/motion";
 import { projects } from "@/lib/projects";
 import ProjectBlock from "./ProjectBlock";
+import SplitText from "./SplitText";
 
-/** "3 projects shipped" — counts up once, the first time it scrolls into view */
-function ShippedCounter({ total }: { total: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // Starts a bit later (a quarter up the screen) so the count is actually seen, not finished off-screen
-  const inView = useInView(ref, { once: true, margin: "0px 0px -25% 0px" });
-  const value = useMotionValue(0);
-  const shown = useTransform(value, (v) => Math.round(v));
-
-  useEffect(() => {
-    if (!inView) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      value.set(total);
-      return;
-    }
-    // Even pacing: with only a few whole numbers, an ease-out would jump to the final digit almost instantly
-    const controls = animate(value, total, { duration: 1.6, ease: [0.45, 0, 0.55, 1], delay: 0.15 });
-    return () => controls.stop();
-  }, [inView, total, value]);
-
-  return (
-    <div ref={ref} className="flex shrink-0 items-center gap-[0.9rem]">
-      {/* Fixed width so the label doesn't twitch as narrow and wide digits swap */}
-      <motion.span className="inline-block min-w-[0.62em] font-display text-[clamp(3rem,5.2vw,5rem)] font-light leading-[0.8] tracking-[-0.05em] text-accent tabular-nums">
-        {shown}
-      </motion.span>
-      <span className="label leading-[1.5]">
-        Projects
-        <br />
-        shipped
-      </span>
-    </div>
-  );
-}
-
-/** Section transition: two giant words slide past each other as you scroll in. */
-function WorkIntro() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const smooth = useSpring(scrollYProgress, scrollSpring);
-  const leftX = useTransform(smooth, [0, 1], ["-12%", "10%"]);
-  const rightX = useTransform(smooth, [0, 1], ["14%", "-14%"]);
-  const rule = useTransform(smooth, [0.15, 0.55], [0, 1]);
-
-  return (
-    <div ref={ref} className="relative overflow-hidden pb-14 pt-[7.5rem] md:pb-[6.5rem] md:pt-[13rem]">
-      <h2 className="font-display text-[clamp(4.5rem,17vw,17rem)] leading-[0.85] tracking-[-0.055em]">
-        <motion.span style={{ x: leftX }} className="block whitespace-nowrap font-extralight">
-          Selected
-        </motion.span>
-        <motion.span style={{ x: rightX }} className="block whitespace-nowrap pl-[28vw] font-bold">
-          work<span className="text-accent">.</span>
-        </motion.span>
-      </h2>
-
-      <div className="shell mt-10 flex items-center gap-6 md:mt-[4.5rem] md:gap-8">
-        <ShippedCounter total={projects.length} />
-        <motion.span style={{ scaleX: rule }} className="block h-px flex-1 origin-left bg-accent" />
-        <span className="label hidden shrink-0 md:block">What each one proves</span>
-      </div>
-    </div>
-  );
-}
+const WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
 
 export default function Work() {
+  const count = WORDS[projects.length] ?? String(projects.length);
+
   return (
-    <section id="work" className="relative">
-      <WorkIntro />
-      {projects.map((p, i) => (
-        <ProjectBlock key={p.slug} project={p} index={i} total={projects.length} />
-      ))}
+    // Solid background + z-index: this section slides up over the pinned hero
+    <section id="work" className="relative z-10 rounded-t-[2rem] border-t border-line bg-ink md:rounded-t-[3rem]">
+      <div className="shell grid grid-cols-12 gap-y-10 pb-16 pt-24 md:gap-x-8 md:pb-24 md:pt-36">
+        <div className="col-span-12 md:col-span-8">
+          <p className="label mb-6">[ 01 ] Work</p>
+          <SplitText text={"Selected\n{work}"} lineClassNames={["", "md:pl-[8vw]"]} className="font-display text-display-xl font-medium" />
+        </div>
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+          transition={{ duration: 1.4, ease: easeExpo, delay: 0.3 }}
+          className="caps col-span-12 max-w-[26rem] self-end md:col-span-4"
+        >
+          {count} shipped projects. Each one is here because it proves something specific, listed right under the
+          title.
+        </motion.p>
+      </div>
+
+      <div className="shell pb-16 md:pb-24">
+        {projects.map((p, i) => (
+          <ProjectBlock key={p.slug} project={p} index={i} total={projects.length} />
+        ))}
+      </div>
     </section>
   );
 }

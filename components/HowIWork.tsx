@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import { easeExpo } from "@/lib/motion";
 
 const steps = [
@@ -22,50 +23,71 @@ const steps = [
   },
 ];
 
-export default function HowIWork() {
-  return (
-    <section id="process" className="relative border-t border-line pb-32 pt-[6.5rem] md:pb-[12rem] md:pt-[10rem]">
-      <div className="shell grid grid-cols-12 gap-y-14 md:gap-x-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px 0px -15% 0px" }}
-          transition={{ duration: 1.4, ease: easeExpo }}
-          className="col-span-12 self-start md:sticky md:top-32 md:col-span-4"
-        >
-          <p className="label mb-[1.4rem]">
-            <span className="text-accent">02</span> / Process
-          </p>
-          <h2 className="font-display text-display-l">
-            <span className="block font-extralight">How I</span>
-            <span className="block font-bold">work</span>
-          </h2>
-        </motion.div>
+// The heading repeats, each copy fainter, sliding at its own pace
+const ECHOES = [
+  { opacity: 1, from: "0%" },
+  { opacity: 0.5, from: "-6%" },
+  { opacity: 0.25, from: "8%" },
+  { opacity: 0.1, from: "-10%" },
+];
 
-        <ol className="col-span-12 md:col-span-8 md:col-start-5">
+function Echo({ i, progress }: { i: number; progress: ReturnType<typeof useScroll>["scrollYProgress"] }) {
+  const e = ECHOES[i];
+  const x = useTransform(progress, [0, 1], [e.from, "0%"]);
+  return (
+    <motion.span aria-hidden={i > 0} style={{ x, opacity: e.opacity }} className="block whitespace-nowrap">
+      How I <span className="font-serif">work</span>
+    </motion.span>
+  );
+}
+
+export default function HowIWork() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "center center"] });
+
+  return (
+    <section id="process" className="relative z-10 bg-ink pb-24 pt-24 md:pb-40 md:pt-40">
+      <div ref={ref} className="shell grid grid-cols-12 gap-y-10 overflow-hidden md:gap-x-8">
+        <div className="col-span-12 md:col-span-8">
+          <p className="label mb-6">[ 02 ] Process</p>
+          <h2 className="font-display text-display-xl font-medium">
+            {ECHOES.map((_, i) => (
+              <Echo key={i} i={i} progress={scrollYProgress} />
+            ))}
+          </h2>
+        </div>
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+          transition={{ duration: 1.4, ease: easeExpo }}
+          className="caps col-span-12 max-w-[26rem] self-end md:col-span-4"
+        >
+          Four rules every project follows, from a one-page landing to a booking system with a database. None of them
+          are extras you pay for later.
+        </motion.p>
+      </div>
+
+      <div className="shell mt-14 md:mt-24">
+        <ol className="grid gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-4">
           {steps.map((step, i) => (
             <motion.li
               key={step.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "0px 0px -10% 0px" }}
               transition={{ duration: 1.4, ease: easeExpo, delay: i * 0.08 }}
-              className="group/step grid grid-cols-[3.75rem_1fr] items-baseline gap-x-5 border-b border-line pb-[2.4rem] pt-[2.1rem] first:border-t md:grid-cols-[10rem_1fr] md:gap-x-10 md:pb-[3.4rem] md:pt-[2.75rem]"
+              className="panel group/step flex min-h-[17rem] flex-col p-6 transition-colors duration-700 ease-expo hover:bg-fg md:min-h-[20rem] md:p-8"
             >
-              <span className="relative origin-left font-display text-[clamp(2.5rem,6vw,5.5rem)] font-extralight leading-none tracking-[-0.05em] text-bone/35 transition-transform duration-700 ease-expo group-hover/step:scale-[1.18]">
-                {String(i + 1).padStart(2, "0")}
-                {/* Colour change as a cross-fade: opacity is composited, animating `color` repaints the glyphs */}
-                <span
-                  aria-hidden
-                  className="absolute inset-0 text-accent opacity-0 transition-opacity duration-700 ease-expo group-hover/step:opacity-100"
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
+              <span className="font-serif text-[clamp(2.5rem,4.5vw,4rem)] leading-none transition-colors duration-700 group-hover/step:text-ink">
+                {`{${String(i + 1).padStart(2, "0")}}`}
               </span>
-              <div>
-                <h3 className="font-display text-display-s font-semibold">{step.title}</h3>
-                <p className="mt-[0.7rem] max-w-[34rem] text-lead text-bone/65">{step.text}</p>
-              </div>
+              <h3 className="mt-auto pt-10 font-display text-display-s font-medium transition-colors duration-700 group-hover/step:text-ink">
+                {step.title}
+              </h3>
+              <p className="mt-3 text-[0.9375rem] leading-relaxed text-fg/70 transition-colors duration-700 group-hover/step:text-ink/75">
+                {step.text}
+              </p>
             </motion.li>
           ))}
         </ol>

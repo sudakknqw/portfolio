@@ -117,13 +117,13 @@ export default function Select({ label, options, value, onChange, placeholder = 
         className={`flex w-full items-center justify-between border-b pb-[0.55rem] pt-1 text-left text-base outline-none transition-colors duration-500 ${
           inverted
             ? `border-ink/25 focus-visible:border-ink ${open ? "border-ink" : ""}`
-            : `border-bone/20 focus-visible:border-accent ${open ? "border-accent" : ""}`
+            : `border-fg/20 focus-visible:border-accent ${open ? "border-accent" : ""}`
         }`}
       >
         <span
           id={`${id}-value`}
           className={`truncate transition-colors duration-700 ${
-            value ? (inverted ? "text-ink" : "text-bone") : inverted ? "text-ink/45" : "text-bone/35"
+            value ? (inverted ? "text-ink" : "text-fg") : inverted ? "text-ink/45" : "text-fg/35"
           }`}
         >
           {value || placeholder}
@@ -132,7 +132,7 @@ export default function Select({ label, options, value, onChange, placeholder = 
           aria-hidden
           viewBox="0 0 12 12"
           className={`ml-3 h-3 w-3 shrink-0 transition-transform duration-500 ease-expo ${open ? "rotate-180" : ""} ${
-            inverted ? "text-ink/60" : "text-bone/40"
+            inverted ? "text-ink/60" : "text-fg/40"
           }`}
         >
           <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -152,7 +152,7 @@ export default function Select({ label, options, value, onChange, placeholder = 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
             transition={{ duration: 0.35, ease: easeExpo }}
-            className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 min-w-[11rem] overflow-hidden rounded-[0.4rem] border border-bone/15 bg-ink-2 py-1.5 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.9)] outline-none"
+            className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 min-w-[11rem] overflow-hidden rounded-[0.4rem] border border-fg/15 bg-ink-2 py-1.5 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.9)] outline-none"
           >
             {options.map((option, i) => {
               const selected = option === value;
@@ -165,7 +165,7 @@ export default function Select({ label, options, value, onChange, placeholder = 
                   onPointerMove={() => setActive(i)}
                   onClick={() => pick(i)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 text-[0.9375rem] transition-colors duration-200 ${
-                    i === active ? "bg-bone/[0.06] text-bone" : "text-bone/70"
+                    i === active ? "bg-fg/[0.06] text-fg" : "text-fg/70"
                   }`}
                 >
                   {/* Accent tick marks the current choice */}

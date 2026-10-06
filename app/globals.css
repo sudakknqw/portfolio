@@ -7,13 +7,13 @@
     color-scheme: dark;
   }
   html {
-    @apply bg-ink text-bone;
+    @apply bg-ink text-fg;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-ink font-sans text-bone;
+    @apply bg-ink font-sans text-fg;
   }
   ::selection {
     @apply bg-accent text-ink;
@@ -29,10 +29,13 @@
   .shell {
     @apply mx-auto w-full max-w-[1600px] px-5 md:px-10;
   }
-  /* Outlined display numerals */
-  .numeral-outline {
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(237, 234, 228, 0.18);
+  /* Uppercase grotesk paragraph: the "manifesto" voice */
+  .caps {
+    @apply font-display text-[0.8125rem] font-medium uppercase leading-[1.35] tracking-[0.01em] md:text-[0.875rem];
+  }
+  /* Rounded panel used for cards and the header bar */
+  .panel {
+    @apply rounded-[1.5rem] border border-line bg-ink-2;
   }
 }
 

@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, JetBrains_Mono, Manrope } from "next/font/google";
+import { Instrument_Serif, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import ConsoleGreeting from "@/components/ConsoleGreeting";
 import Cursor from "@/components/Cursor";
 import Providers from "@/components/Providers";
 import "./globals.css";
 
-// Display: variable grotesque with real weight range (200–800) — the thin/bold contrast is the whole look
-const display = Bricolage_Grotesque({
+// Two voices, mixed letter by letter in headlines: a tight grotesk and an italic serif
+const display = Inter_Tight({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
 });
 
-const body = Manrope({
+const serif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-body",
+  weight: "400",
+  style: "italic",
+  variable: "--font-serif",
   display: "swap",
 });
 
@@ -48,12 +50,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0A",
+  themeColor: "#100C09",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${serif.variable} ${mono.variable}`}>
       <body>
         <Providers>
           {children}

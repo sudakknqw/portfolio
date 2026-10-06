@@ -6,6 +6,7 @@ import { easeExpo } from "@/lib/motion";
 import { site } from "@/lib/site";
 import ArrowLink from "./ArrowLink";
 import ContactForm from "./ContactForm";
+import SplitText from "./SplitText";
 
 export default function Contact() {
   // Hovering either contact link floods the whole block with the accent colour
@@ -13,7 +14,7 @@ export default function Contact() {
   const on = () => setActive(true);
   const off = () => setActive(false);
 
-  const ink = active ? "text-ink" : "text-bone";
+  const ink = active ? "text-ink" : "text-fg";
   const muted = active ? "text-ink/60" : "text-muted";
   const rule = active ? "border-ink/20" : "border-line";
 
@@ -21,7 +22,7 @@ export default function Contact() {
     <section
       id="contact"
       data-cursor={active ? "invert" : undefined}
-      className="relative flex min-h-[100svh] flex-col overflow-hidden border-t border-line"
+      className="relative z-10 flex min-h-[100svh] flex-col overflow-hidden rounded-t-[2rem] border-t border-line bg-ink md:rounded-t-[3rem]"
     >
       <motion.div
         aria-hidden
@@ -37,19 +38,14 @@ export default function Contact() {
         className={`shell relative flex flex-1 flex-col pb-7 pt-[6.5rem] transition-colors duration-700 ease-expo md:pb-[2.35rem] md:pt-[9rem] ${ink}`}
       >
         <p className={`label mb-[1.4rem] transition-colors duration-700 ${muted}`}>
-          <span className={active ? "text-ink" : "text-accent"}>03</span> / Contact
+          [ 03 ] Contact
         </p>
 
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-          transition={{ duration: 1.4, ease: easeExpo }}
-          className="font-display text-display-xl"
-        >
-          <span className="block font-extralight">Got a project?</span>
-          <span className="block font-bold md:pl-[16vw]">Let&apos;s build it.</span>
-        </motion.h2>
+        <SplitText
+          text={"Got a pro_j_ect?\nLet's {build} it."}
+          lineClassNames={["", "md:pl-[16vw]"]}
+          className="font-display text-display-xl font-medium"
+        />
 
         {/* Two equal ways in: a short brief, or straight to a chat. Neither is the "main" path. */}
         <div className="mt-[4rem] grid grid-cols-12 gap-y-[3.25rem] md:mt-[5.5rem] md:gap-x-8">
@@ -114,7 +110,7 @@ export default function Contact() {
             © {new Date().getFullYear()} {site.name}
           </span>
           <span className={`label hidden font-medium transition-colors duration-700 md:block ${muted}`}>{site.role}</span>
-          <a href="#top" className={`label font-medium transition-colors duration-700 hover:text-bone ${muted}`}>
+          <a href="#top" className={`label font-medium transition-colors duration-700 hover:text-fg ${muted}`}>
             Back to top ↑
           </a>
         </div>

@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { site } from "@/lib/site";
-import ArrowLink from "./ArrowLink";
+import BracketButton from "./BracketButton";
 import Select from "./Select";
 
 const BUDGETS = ["Under $150", "$150–500", "$500+", "Not sure yet"];
@@ -56,7 +56,7 @@ export default function ContactForm({ inverted = false }: { inverted?: boolean }
   const field = `w-full appearance-none rounded-none border-b bg-transparent pb-[0.55rem] pt-1 text-base outline-none transition-colors duration-500 ${
     inverted
       ? "border-ink/25 text-ink placeholder:text-ink/45 focus:border-ink"
-      : "border-bone/20 text-bone placeholder:text-bone/35 focus:border-accent"
+      : "border-fg/20 text-fg placeholder:text-fg/35 focus:border-accent"
   }`;
   const label = `label mb-2 block transition-colors duration-700 ${inverted ? "text-ink/60" : ""}`;
 
@@ -87,13 +87,13 @@ export default function ContactForm({ inverted = false }: { inverted?: boolean }
       </div>
 
       <div className="mt-[2.4rem] flex flex-wrap items-center gap-x-8 gap-y-3">
-        <ArrowLink type="submit" size="ml" inverted={inverted}>
+        <BracketButton type="submit" inverted={inverted} className="text-base md:text-lg">
           Send via Telegram
-        </ArrowLink>
+        </BracketButton>
         <p
           aria-live="polite"
           className={`min-h-[1.25rem] text-sm transition-colors duration-700 ${
-            notice?.tone === "error" ? (inverted ? "text-ink" : "text-accent") : inverted ? "text-ink/60" : "text-bone/60"
+            notice?.tone === "error" ? (inverted ? "text-ink" : "text-accent") : inverted ? "text-ink/60" : "text-fg/60"
           }`}
         >
           {notice?.text}
